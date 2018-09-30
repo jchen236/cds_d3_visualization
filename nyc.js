@@ -368,9 +368,9 @@
         ["Long Island", [-73.648224, 40.7387]],
         ["New Jersey", [-74.09964, 40.7783118]]
       ],
-      c = d3.geo.mercator().center([-73.96667, 40.78333]).scale(100e3).translate([310, 170]),
+      c = d3.geo.mercator().center([-73.96667, 40.78333]).scale(50e3).translate([310, 170]),
       f = d3.geo.path().projection(c),
-      s = d3.select("#viz-nyc").append("svg").style("background-color", 'red').attr("width", 1000).attr("height", 450).call(e);
+      s = d3.select("#viz-nyc").append("svg").style("background-color", 'rgb(7, 179, 222)').attr("width", 1200).attr("height", 500).call(e);
     d3.json("https://brendansudol.com//assets/data/nyc.json", function(t, n) {
       var r = a.feature(n, n.objects.counties).features,
         e = a.feature(n, n.objects.surrounding_states).features;
