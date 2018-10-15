@@ -507,7 +507,7 @@
               .attr("stop-color", salesPriceHighColor)
               .attr("stop-opacity", 1);
             key.attr("visibility", "visible");
-            y.domain([Math.sqrt(maxRatio), Math.sqrt(minRatio)]);
+            y.domain([maxMedian, minMedian]);
           }
           if (toggle === 1) {
             legend.select("stop").remove();
