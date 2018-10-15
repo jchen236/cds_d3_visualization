@@ -163,7 +163,7 @@
           </label></td>
         <td>Median Property Age</td>
       </tr>
-      
+
     </table>
   </div>
 
@@ -292,7 +292,7 @@
         var minPropertyDensity = d3.min(propertyDensityArray);
         var maxPropertyDensity = d3.max(propertyDensityArray);
         var propertyDensityRamp = d3.scaleLinear().domain([minPropertyDensity, maxPropertyDensity]).range([densityLowColor, densityHighColor])
-        
+
         var medianSalesPriceData = []
         var sqftRatioData = [];
         for (var d = 0; d < data.length; d++) {
@@ -376,6 +376,13 @@
                 }
                 return d.properties.neighborhood + ": " + "$" + d.properties.median_sales_price;
               })())
+            d3.select('#neighborhoodDisplay')
+              .text((function() {
+                if (d.properties.median_sales_price == "N/A") {
+                  return d.properties.neighborhood + ": " + "N/A";
+                }
+                return d.properties.neighborhood + ": " + "$" + d.properties.median_sales_price;
+              })())
           })
           .on("mouseleave", function(d) {
             d3.select(this)
@@ -385,7 +392,7 @@
               .transition()
               .style("opacity", 0);
           });
-        
+
         var sqftRatios = svg.append("g");
         sqftRatios.selectAll("path")
           .data(nyc.features)
