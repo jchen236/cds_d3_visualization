@@ -125,6 +125,13 @@
     <table>
       <tr>
         <td><label class="switch">
+            <input id="medianSalesPrice_toggle" type="checkbox">
+            <div class="slider round"></div>
+          </label></td>
+        <td>Median Sales Price</td>
+      </tr>
+      <tr>
+        <td><label class="switch">
             <input id="ratio_toggle" type="checkbox">
             <div class="slider round"></div>
           </label></td>
@@ -144,18 +151,22 @@
           </label></td>
         <td>Median Property Age</td>
       </tr>
+      
     </table>
   </div>
 
   <script src="https://d3js.org/d3.v4.min.js"></script>
   <script src="https://d3js.org/topojson.v1.min.js"></script>
   <script>
-    var salesPriceToSqFtLowColor = '#ccffcc'
-    var salesPriceToSqFtHighColor = '#004d00'
+    var salesPriceLowColor = '#ccffcc';
+    var salesPriceHighColor ='#004d00';
+    var salesPriceToSqFtLowColor = '#ccffcc';
+    var salesPriceToSqFtHighColor = '#004d00';
     var densityLowColor = '#fee8c8';
     var densityHighColor = '#7f0000';
     var buildingAgeLowColor = '#80d4ff';
     var buildingAgeHighColor = '#00334d';
+
     var boroughAreas = [22.82, 42.47, 69.5, 108.1, 58.69]
     var neighborhoodNameMap = new Map();
     neighborhoodNameMap.set('HARLEM-EAST', 'EAST HARLEM');
@@ -209,7 +220,7 @@
       width = +svg.attr("width"),
       height = +svg.attr("height");
 
-    d3.csv("neighborhood_updated_data.csv", function(data) {
+    d3.csv("neighborhood_data.csv", function(data) {
       // http://bl.ocks.org/pstuffa/38111aa2e3077baa67f1d0c42df9bf08
       // http://data.beta.nyc//dataset/0ff93d2d-90ba-457c-9f7e-39e47bf2ac5f/resource/35dd04fb-81b3-479b-a074-a27a37888ce7/download/d085e2f8d0b54d4590b1e7d1f35594c1pediacitiesnycneighborhoods.geojson
       d3.json("./nycneighborhoods.json", function(error, nyc) {
@@ -218,6 +229,7 @@
         var buildingAges = [];
         // Initialize all ratios to be -1 and num_properties to be -1?
         for (var j = 0; j < nyc.features.length; j++) {
+          nyc.features[j].properties.median_sales_price = "N/A";
           nyc.features[j].properties.ratio = "N/A";
           nyc.features[j].properties.propertyDensity = "N/A";
           nyc.features[j].properties.buildingAge = "N/A";
@@ -226,7 +238,9 @@
         for (var i = 0; i < data.length; i++) {
           // Grab neighborhood Name
           var dataNeighborhood = data[i].NEIGHBORHOOD;
-          // Grab neighborhood ratio
+          // Grab median sales price
+          var medianSalesPrice = data[i].MEDIAN_SALES_PRICE;
+          // Grab ratio of sale price to sq ft
           var dataRatio = data[i].SALE_PRICE_TO_SQUARE_FOOT_RATIO;
           // Get the ratio between the number of transactions and the size of the borough
           var transactions_to_size_ratio = data[i].TRANSACTIONS_TO_SIZE_RATIO;
@@ -242,6 +256,9 @@
               if (mappedNeighborhoodName != undefined && (uppercaseDataNeighborhood.indexOf(uppercaseJsonNeighborhood) !== -1 || uppercaseJsonNeighborhood.indexOf(uppercaseDataNeighborhood) !== -1)) {
                 continue;
               }
+              // Get the median sales price
+              nyc.features[j].properties.median_sales_price = parseInt(medianSalesPrice);
+
               // Get the sales price to sq ft value into the json
               nyc.features[j].properties.ratio = dataRatio;
 
@@ -262,13 +279,19 @@
         var minPropertyDensity = d3.min(propertyDensityArray);
         var maxPropertyDensity = d3.max(propertyDensityArray);
         var propertyDensityRamp = d3.scaleLinear().domain([minPropertyDensity, maxPropertyDensity]).range([densityLowColor, densityHighColor])
-
+        
+        var medianSalesPriceData = []
         var sqftRatioData = [];
         for (var d = 0; d < data.length; d++) {
+          medianSalesPriceData.push(parseInt(data[d].MEDIAN_SALES_PRICE));
           sqftRatioData.push(parseFloat(data[d].SALE_PRICE_TO_SQUARE_FOOT_RATIO));
           neighborhoodDensityMap.set(data[d].BOROUGH, Math.round(parseFloat(data[d].TRANSACTIONS_TO_SIZE_RATIO)));
           neighborhoodColorMap.set(Math.round(parseFloat(data[d].TRANSACTIONS_TO_SIZE_RATIO)), propertyDensityRamp(Math.round(parseFloat(data[d].TRANSACTIONS_TO_SIZE_RATIO))));
         }
+        var minMedian = d3.min(medianSalesPriceData);
+        var maxMedian = d3.max(medianSalesPriceData);
+        var medianSalesPriceRamp = d3.scaleLinear().domain([Math.sqrt(minMedian), Math.sqrt(maxMedian)]).range([salesPriceLowColor, salesPriceHighColor]);
+
         var minRatio = d3.min(sqftRatioData)
         var maxRatio = d3.max(sqftRatioData)
         var salesPriceToSqFtRatioRamp = d3.scaleLinear().domain([minRatio, maxRatio]).range([salesPriceToSqFtLowColor, salesPriceToSqFtHighColor])
@@ -300,6 +323,8 @@
               .style("left", (d3.event.pageX) + "px")
               .style("top", (d3.event.pageY) + "px")
               .text(d.properties.neighborhood)
+            d3.select('#neighborhoodDisplay')
+              .text(d.properties.neighborhood)
           })
           .on("mouseleave", function(d) {
             d3.select(this)
@@ -309,6 +334,45 @@
               .transition()
               .style("opacity", 0);
           });
+
+        var medianSalesPrice = svg.append("g");
+        medianSalesPrice.selectAll("path")
+          .data(nyc.features)
+          .enter().append("path")
+          .attr("d", path)
+          .attr("class", "medianSalesPrice")
+          .attr("visibility", "hidden")
+          .style("fill", function(d) {
+            if (d.properties.median_sales_price == "N/A") {
+              return "#000";
+            }
+            return medianSalesPriceRamp(Math.sqrt(d.properties.median_sales_price));
+          })
+          .on("mouseenter", function(d) {
+            d3.select(this)
+              .style("stroke-width", 1.5)
+              .style("stroke-dasharray", 0)
+            d3.select("#neighborhoodPopover")
+              .transition()
+              .style("opacity", 1)
+              .style("left", (d3.event.pageX) + "px")
+              .style("top", (d3.event.pageY) + "px")
+              .text((function() {
+                if (d.properties.median_sales_price == "N/A") {
+                  return d.properties.neighborhood + ": " + "N/A";
+                }
+                return d.properties.neighborhood + ": " + "$" + d.properties.median_sales_price;
+              })())
+          })
+          .on("mouseleave", function(d) {
+            d3.select(this)
+              .style("stroke-width", .25)
+              .style("stroke-dasharray", 1)
+            d3.select("#cneighborhoodPopoverountyText")
+              .transition()
+              .style("opacity", 0);
+          });
+        
         var sqftRatios = svg.append("g");
         sqftRatios.selectAll("path")
           .data(nyc.features)
@@ -413,6 +477,7 @@
               .style("opacity", 0);
           });
         // Checkbox Logic
+        var medianSalesPriceCheckbox = document.querySelector('input[id="medianSalesPrice_toggle"]');
         var ratioCheckbox = document.querySelector('input[id="ratio_toggle"]');
         var densityCheckbox = document.querySelector('input[id="density_toggle"]');
         var ageCheckbox = document.querySelector('input[id="age_toggle"]');
@@ -473,6 +538,18 @@
             key.attr("visibility", "hidden");
           }
         }
+        // TODO: UPDATE LOGIC FOR STATE BOOLEAN
+        medianSalesPriceCheckbox.onchange = function() {
+          if (this.checked) {
+            d3.selectAll(".medianSalesPrice").attr("visibility", "visible");
+            sqFtRatiosToggle = true
+            makeLegend();
+          } else {
+            d3.selectAll(".medianSalesPrice").attr("visibility", "hidden");
+            sqFtRatiosToggle = false;
+            makeLegend();
+          }
+        };
 
         ratioCheckbox.onchange = function() {
           if (this.checked) {
