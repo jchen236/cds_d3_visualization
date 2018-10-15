@@ -544,14 +544,14 @@
             legend.select("rect").remove();
             legend.append("stop")
               .attr("offset", "0%")
-              .attr("stop-color", salesPriceToSqFtLowColor)
+              .attr("stop-color", salesPriceLowColor)
               .attr("stop-opacity", 1);
             legend.append("stop")
               .attr("offset", "100%")
-              .attr("stop-color", salesPriceToSqFtHighColor)
+              .attr("stop-color", salesPriceHighColor)
               .attr("stop-opacity", 1);
             key.attr("visibility", "visible");
-            y.domain([maxRatio, minRatio]);
+            y.domain([Math.sqrt(maxRatio), Math.sqrt(minRatio)]);
           }
           if (sqFtRatiosToggle) {
             legend.select("stop").remove();
