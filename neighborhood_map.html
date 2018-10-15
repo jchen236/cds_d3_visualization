@@ -416,92 +416,96 @@
         var ratioCheckbox = document.querySelector('input[id="ratio_toggle"]');
         var densityCheckbox = document.querySelector('input[id="density_toggle"]');
         var ageCheckbox = document.querySelector('input[id="age_toggle"]');
-        ratioCheckbox.onchange = function() {
-          if (this.checked) {
-            d3.selectAll(".sqftratios").attr("visibility", "visible");
+
+        var sqFtRatiosToggle = false;
+        var densityToggle = false;
+        var ageToggle = false;
+
+        function makeLegend() {
+          if (sqFtRatiosToggle) {
             legend.select("stop").remove();
             legend.select("stop").remove();
             legend.select("rect").remove();
-
             legend.append("stop")
               .attr("offset", "0%")
               .attr("stop-color", salesPriceToSqFtLowColor)
               .attr("stop-opacity", 1);
-
             legend.append("stop")
               .attr("offset", "100%")
-              .attr("stop-color",  salesPriceToSqFtHighColor)
+              .attr("stop-color", salesPriceToSqFtHighColor)
               .attr("stop-opacity", 1);
-
-            key.append("rect")
-              .attr("width", 300)
-              .attr("height", 20)
-              .style("fill", "url(#gradient)")
-              .attr("transform", "translate(0,10)");
-
             key.attr("visibility", "visible");
+          }
+          if (densityToggle) {
+            legend.select("stop").remove();
+            legend.select("stop").remove();
+            legend.select("rect").remove();
+            legend.append("stop")
+              .attr("offset", "0%")
+              .attr("stop-color", densityLowColor)
+              .attr("stop-opacity", 1);
+            legend.append("stop")
+              .attr("offset", "100%")
+              .attr("stop-color", densityHighColor)
+              .attr("stop-opacity", 1);
+            key.attr("visibility", "visible");
+          }
+          if (ageToggle) {
+            legend.select("stop").remove();
+            legend.select("stop").remove();
+            legend.select("rect").remove();
+            legend.append("stop")
+              .attr("offset", "0%")
+              .attr("stop-color", buildingAgeLowColor)
+              .attr("stop-opacity", 1);
+            legend.append("stop")
+              .attr("offset", "100%")
+              .attr("stop-color", buildingAgeHighColor)
+              .attr("stop-opacity", 1);
+            key.attr("visibility", "visible");
+          }
+          key.append("rect")
+            .attr("width", 300)
+            .attr("height", 20)
+            .style("fill", "url(#gradient)")
+            .attr("transform", "translate(0,10)");
+          if (!(sqFtRatiosToggle || densityToggle || ageToggle)) {
+            key.attr("visibility", "hidden");
+          }
+        }
+
+        ratioCheckbox.onchange = function() {
+          if (this.checked) {
+            d3.selectAll(".sqftratios").attr("visibility", "visible");
+            sqFtRatiosToggle = true
+            makeLegend();
           } else {
             d3.selectAll(".sqftratios").attr("visibility", "hidden");
-            key.attr("visibility", "hidden");
+            sqFtRatiosToggle = false;
+            makeLegend();
           }
         };
         densityCheckbox.onchange = function() {
           if (this.checked) {
             d3.selectAll(".density").attr("visibility", "visible");
-            legend.select("stop").remove();
-            legend.select("stop").remove();
-            legend.select("rect").remove();
-
-            legend.append("stop")
-              .attr("offset", "0%")
-              .attr("stop-color", densityLowColor)
-              .attr("stop-opacity", 1);
-
-            legend.append("stop")
-              .attr("offset", "100%")
-              .attr("stop-color",  densityHighColor)
-              .attr("stop-opacity", 1);
-
-            key.append("rect")
-              .attr("width", 300)
-              .attr("height", 20)
-              .style("fill", "url(#gradient)")
-              .attr("transform", "translate(0,10)");
-
-              key.attr("visibility", "visible");
+            densityToggle = true;
+            makeLegend();
           } else {
             d3.selectAll(".density").attr("visibility", "hidden");
-            key.attr("visibility", "hidden");
+            densityToggle = false;
+            makeLegend();
           }
         };
+
         ageCheckbox.onchange = function() {
           if (this.checked) {
-
             d3.selectAll(".age").attr("visibility", "visible");
-            legend.select("stop").remove();
-            legend.select("stop").remove();
-            legend.select("rect").remove();
-
-            legend.append("stop")
-              .attr("offset", "0%")
-              .attr("stop-color", buildingAgeLowColor)
-              .attr("stop-opacity", 1);
-
-            legend.append("stop")
-              .attr("offset", "100%")
-              .attr("stop-color",  buildingAgeHighColor)
-              .attr("stop-opacity", 1);
-
-            key.append("rect")
-              .attr("width", 300)
-              .attr("height", 20)
-              .style("fill", "url(#gradient)")
-              .attr("transform", "translate(0,10)");
-
-              key.attr("visibility", "visible");
+            ageToggle = true;
+            makeLegend();
           } else {
             d3.selectAll(".age").attr("visibility", "hidden");
-            key.attr("visibility", "hidden");
+            ageToggle = false;
+            makeLegend();
           }
         };
       });
