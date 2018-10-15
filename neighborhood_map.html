@@ -605,6 +605,12 @@
         medianSalesPriceCheckbox.onchange = function() {
           if (this.checked) {
             d3.selectAll(".medianSalesPrice").attr("visibility", "visible");
+            d3.selectAll(".sqftratios").attr("visibility", "hidden");
+            d3.selectAll(".density").attr("visibility", "hidden");
+            d3.selectAll(".age").attr("visibility", "hidden");
+            d3.select("#ratio_toggle").property('checked', false);
+            d3.select("#density_toggle").property('checked', false);
+            d3.select("#age_toggle").property('checked', false);
             sqFtRatiosToggle = true
             makeLegend();
           } else {
@@ -616,7 +622,13 @@
 
         ratioCheckbox.onchange = function() {
           if (this.checked) {
+            d3.selectAll(".medianSalesPrice").attr("visibility", "hidden");
             d3.selectAll(".sqftratios").attr("visibility", "visible");
+            d3.selectAll(".density").attr("visibility", "hidden");
+            d3.selectAll(".age").attr("visibility", "hidden");
+            d3.select("#medianSalesPrice_toggle").property('checked', false);
+            d3.select("#density_toggle").property('checked', false);
+            d3.select("#age_toggle").property('checked', false);
             sqFtRatiosToggle = true
             makeLegend();
           } else {
@@ -627,7 +639,13 @@
         };
         densityCheckbox.onchange = function() {
           if (this.checked) {
+            d3.selectAll(".medianSalesPrice").attr("visibility", "hidden");
+            d3.selectAll(".sqftratios").attr("visibility", "hidden");
             d3.selectAll(".density").attr("visibility", "visible");
+            d3.selectAll(".age").attr("visibility", "hidden");
+            d3.select("#medianSalesPrice_toggle").property('checked', false);
+            d3.select("#ratio_toggle").property('checked', false);
+            d3.select("#age_toggle").property('checked', false);
             densityToggle = true;
             makeLegend();
           } else {
@@ -639,7 +657,13 @@
 
         ageCheckbox.onchange = function() {
           if (this.checked) {
+            d3.selectAll(".medianSalesPrice").attr("visibility", "hidden");
+            d3.selectAll(".sqftratios").attr("visibility", "hidden");
+            d3.selectAll(".density").attr("visibility", "hidden");
             d3.selectAll(".age").attr("visibility", "visible");
+            d3.select("#medianSalesPrice_toggle").property('checked', false);
+            d3.select("#ratio_toggle").property('checked', false);
+            d3.select("#density_toggle").property('checked', false);
             ageToggle = true;
             makeLegend();
           } else {
