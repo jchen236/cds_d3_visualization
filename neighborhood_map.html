@@ -163,7 +163,7 @@
           </label></td>
         <td>Median Property Age</td>
       </tr>
-      
+
     </table>
   </div>
 
@@ -292,7 +292,7 @@
         var minPropertyDensity = d3.min(propertyDensityArray);
         var maxPropertyDensity = d3.max(propertyDensityArray);
         var propertyDensityRamp = d3.scaleLinear().domain([minPropertyDensity, maxPropertyDensity]).range([densityLowColor, densityHighColor])
-        
+
         var medianSalesPriceData = []
         var sqftRatioData = [];
         for (var d = 0; d < data.length; d++) {
@@ -385,7 +385,7 @@
               .transition()
               .style("opacity", 0);
           });
-        
+
         var sqftRatios = svg.append("g");
         sqftRatios.selectAll("path")
           .data(nyc.features)
@@ -513,12 +513,28 @@
         var densityCheckbox = document.querySelector('input[id="density_toggle"]');
         var ageCheckbox = document.querySelector('input[id="age_toggle"]');
 
+        var medianSalesPriceToggle = false;
         var sqFtRatiosToggle = false;
         var densityToggle = false;
         var ageToggle = false;
 
         function makeLegend() {
           key.selectAll("g").select("text").remove();
+          if (medianSalesPriceToggle) {
+            legend.select("stop").remove();
+            legend.select("stop").remove();
+            legend.select("rect").remove();
+            legend.append("stop")
+              .attr("offset", "0%")
+              .attr("stop-color", salesPriceToSqFtLowColor)
+              .attr("stop-opacity", 1);
+            legend.append("stop")
+              .attr("offset", "100%")
+              .attr("stop-color", salesPriceToSqFtHighColor)
+              .attr("stop-opacity", 1);
+            key.attr("visibility", "visible");
+            y.domain([maxRatio, minRatio]);
+          }
           if (sqFtRatiosToggle) {
             legend.select("stop").remove();
             legend.select("stop").remove();
@@ -579,7 +595,7 @@
             .attr("height", 20)
             .style("fill", "url(#gradient)")
             .attr("transform", "translate(0,10)");
-          if (!(sqFtRatiosToggle || densityToggle || ageToggle)) {
+          if (!(medianSalesPriceToggle || sqFtRatiosToggle || densityToggle || ageToggle)) {
             key.attr("visibility", "hidden");
           }
         }
@@ -587,11 +603,11 @@
         medianSalesPriceCheckbox.onchange = function() {
           if (this.checked) {
             d3.selectAll(".medianSalesPrice").attr("visibility", "visible");
-            sqFtRatiosToggle = true
+            medianSalesPriceToggle = true
             makeLegend();
           } else {
             d3.selectAll(".medianSalesPrice").attr("visibility", "hidden");
-            sqFtRatiosToggle = false;
+            medianSalesPriceToggle = false;
             makeLegend();
           }
         };
