@@ -130,7 +130,7 @@
 
 <body>
   <div id="bar"></div>
-  <div id='title'> New York Sales Data From 2016-2017</div>
+  <div id='title'> New York City Property Sales From 2016-2017</div>
   <div id='neighborhoodPopover'> </div>
   <div id='neighborhoodDisplay'> </div>
   <div id="toggleContainer">
@@ -357,7 +357,9 @@
           .attr("visibility", "hidden")
           .style("fill", function(d) {
             if (d.properties.median_sales_price == "N/A") {
-              return "#000";
+              var c = d3.color("black");
+              c.opacity = 0.1;
+              return c;
             }
             return medianSalesPriceRamp(Math.sqrt(d.properties.median_sales_price));
           })
@@ -370,6 +372,13 @@
               .style("opacity", 1)
               .style("left", (d3.event.pageX) + "px")
               .style("top", (d3.event.pageY) + "px")
+              .text((function() {
+                if (d.properties.median_sales_price == "N/A") {
+                  return d.properties.neighborhood + ": " + "N/A";
+                }
+                return d.properties.neighborhood + ": " + "$" + d.properties.median_sales_price;
+              })())
+            d3.select('#neighborhoodDisplay')
               .text((function() {
                 if (d.properties.median_sales_price == "N/A") {
                   return d.properties.neighborhood + ": " + "N/A";
@@ -395,7 +404,9 @@
           .attr("visibility", "hidden")
           .style("fill", function(d) {
             if (d.properties.ratio == "N/A") {
-              return "#000";
+              var c = d3.color("black");
+              c.opacity = 0.1;
+              return c;
             }
             return salesPriceToSqFtRatioRamp(d.properties.ratio);
           })
@@ -430,6 +441,8 @@
               .transition()
               .style("opacity", 0);
           });
+
+
         var density = svg.append("g");
         density.selectAll("path")
           .data(nyc.features)
@@ -474,6 +487,11 @@
           .attr("class", "age")
           .attr("visibility", "hidden")
           .style("fill", function(d) {
+            if (d.properties.buildingAge == "N/A") {
+              var c = d3.color("black");
+              c.opacity = 0.1;
+              return c;
+            }
             return propertyAgeRamp(d.properties.buildingAge);
           })
           .on("mouseenter", function(d) {
